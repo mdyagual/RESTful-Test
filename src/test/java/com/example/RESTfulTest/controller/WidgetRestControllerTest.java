@@ -106,6 +106,27 @@ class WidgetRestControllerTest {
                 .andExpect(jsonPath("$.version", is(1)));
     }
 
+    //TO DO:
+    /*
+    PUT para modificar un elemento que se encuentra en la base de datos
+    PUT para modificar un elemento que no se encuentra en la base de datos (not found)
+    GET para obtener un elemento por ID que se encuentra en la base de datos*/
+
+    //GET
+    @Test
+    @DisplayName("GET /rest/widget/1 - Found")
+    void testGetWidgetFindById() throws Exception {
+        Widget widget1 = new Widget(1l, "Widget Name", "Description", 1);
+
+        // Setup our mocked service
+        doReturn(Optional.of(widget1)).when(service).findById(1l);
+
+        // Execute the GET request
+        mockMvc.perform(get("/rest/widget/{id}", 1L))
+                // Validate the response code
+                .andExpect(status().isOk());
+    }
+
 
     static String asJsonString(final Object obj) {
         try {
