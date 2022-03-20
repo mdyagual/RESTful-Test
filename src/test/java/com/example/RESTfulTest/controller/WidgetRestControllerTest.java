@@ -89,6 +89,7 @@ class WidgetRestControllerTest {
         // Execute the POST request
         mockMvc.perform(post("/rest/widget")
                 .contentType(MediaType.APPLICATION_JSON)
+
                 .content(asJsonString(widgetToPost)))
 
                 // Validate the response code and content type
@@ -125,6 +126,35 @@ class WidgetRestControllerTest {
         mockMvc.perform(get("/rest/widget/{id}", 1L))
                 // Validate the response code
                 .andExpect(status().isOk());
+    }
+
+    //PUT
+    @Test
+    @DisplayName("PUT /rest/widget/1 - Found")
+    void testPutWidgetModifyFound() throws Exception {
+        Widget widget1 = new Widget(1l, "Widget Name", "Description", 1);
+        Widget widgetMod = new Widget(1l, "Widget Name Modified", "WidgetModified", 1);
+
+        // Setup our mocked service
+        doReturn(Optional.of(widget1)).when(service).findById(1l);
+        doReturn(widgetMod).when(service).save(any());
+
+        // Execute the PUT request
+        mockMvc.perform(put("/rest/widget/{id}", 1L).content(asJsonString(widgetMod))
+                .header(HttpHeaders.IF_MATCH,"1")
+                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                //.contentType(MediaType.APPLICATION_JSON)
+                // Validate the response code
+
+                //.content(asJsonString(widget1))
+
+                .andExpect(jsonPath("$.id", is(1)))
+                .andExpect(jsonPath("$.name", is("Widget Name Modified")))
+                .andExpect(jsonPath("$.description", is("WidgetModified")))
+                .andExpect(jsonPath("$.version", is(1)));
     }
 
 
